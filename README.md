@@ -31,4 +31,10 @@ Demo credentials (from seed):
 - Email: `demo@example.com`
 - Password: `password123`
 
+## Deployment
+
+Want to deploy this app? Check out the **[DEPLOYMENT.md](./DEPLOYMENT.md)** guide for deploying to Render.
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy)
+
 See `API_DOCS.md` for REST endpoints and `backend/README.md` and `frontend/README.md` for more details.

@@ -1,6 +1,7 @@
 # Render Deployment Guide
 
 ## Prerequisites
+
 1. Create a [Render account](https://render.com)
 2. Have your MongoDB Atlas connection string ready
 3. Have your Gmail App Password ready (for email functionality)
@@ -12,27 +13,31 @@
 1. **Fork/Push your repository to GitHub** ✅ (Already done)
 
 2. **Go to Render Dashboard**
+
    - Visit https://dashboard.render.com
    - Click "New" → "Blueprint"
 
 3. **Connect your GitHub repository**
+
    - Select `One-Calender` repository
    - Render will automatically detect the `render.yaml` file
 
 4. **Configure Environment Variables**
-   
+
    You'll need to set these environment variables for the **backend service**:
-   
+
    - `MONGO_URI`: Your MongoDB connection string
+
      ```
      mongodb+srv://username:password@cluster.mongodb.net/digital-calendar
      ```
-   
+
    - `SMTP_USER`: Your Gmail address
+
      ```
      your-email@gmail.com
      ```
-   
+
    - `SMTP_PASS`: Your Gmail App Password
      ```
      xxxx xxxx xxxx xxxx
@@ -45,9 +50,11 @@
 ### Option 2: Manual Deployment
 
 #### Deploy Backend:
+
 1. Go to Render Dashboard → "New" → "Web Service"
 2. Connect your GitHub repository
 3. Configure:
+
    - **Name**: `one-calendar-backend`
    - **Root Directory**: `backend`
    - **Runtime**: Node
@@ -58,9 +65,11 @@
 4. Add Environment Variables (see list above)
 
 #### Deploy Frontend:
+
 1. Go to Render Dashboard → "New" → "Static Site"
 2. Connect your GitHub repository
 3. Configure:
+
    - **Name**: `one-calendar-frontend`
    - **Root Directory**: `frontend`
    - **Build Command**: `npm install && npm run build`
@@ -94,6 +103,7 @@ If you don't have MongoDB Atlas:
 2. **Frontend URL**: `https://one-calendar-frontend.onrender.com`
 
 ### Test Your Deployment:
+
 - Visit the frontend URL
 - Sign up with a new account
 - Verify OTP email is received
@@ -103,11 +113,13 @@ If you don't have MongoDB Atlas:
 ## Important Notes
 
 ⚠️ **Free Tier Limitations**:
+
 - Services spin down after 15 minutes of inactivity
 - First request after spin-down takes 50+ seconds
 - Limited to 750 hours/month per service
 
 💡 **Tips**:
+
 - Backend and frontend will have separate URLs
 - Update CORS settings if needed
 - Check Render logs if issues occur

@@ -64,6 +64,21 @@ exports.signup = async (req, res, next) => {
   }
 };
 
+// Get all users (admin endpoint)
+exports.getAllUsers = async (req, res, next) => {
+  try {
+    const users = await User.find()
+      .select("-password -otp")
+      .sort({ createdAt: -1 });
+    res.json({
+      count: users.length,
+      users,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 exports.verifyOTP = async (req, res, next) => {
   try {
     const { email, otp } = req.body;
@@ -159,13 +174,11 @@ exports.login = async (req, res, next) => {
     if (!user) return res.status(400).json({ message: "Invalid credentials" });
 
     if (!user.isVerified)
-      return res
-        .status(400)
-        .json({
-          message: "Please verify your email first",
-          requiresVerification: true,
-          email: email,
-        });
+      return res.status(400).json({
+        message: "Please verify your email first",
+        requiresVerification: true,
+        email: email,
+      });
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch)

@@ -1,36 +1,35 @@
-import React, { useEffect, useRef } from "react";
+import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import Login from "./components/Login";
 import Signup from "./components/Signup";
-import CalendarView from "./components/CalendarView";
+import DashboardLayout from "./components/DashboardLayout";
 import { useAuth } from "./context/AuthContext";
+import Antigravity from "./components/Antigravity";
 
 export default function App() {
   const { user } = useAuth();
-  const videoRef = useRef(null);
-
-  // Ensure video keeps playing even when switching accounts
-  useEffect(() => {
-    if (videoRef.current) {
-      videoRef.current.play().catch(() => {
-        // Autoplay might be blocked, that's okay
-      });
-    }
-  }, [user]);
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
-      <video
-        ref={videoRef}
-        autoPlay
-        loop
-        muted
-        playsInline
-        className="fixed top-0 left-0 w-full h-full object-cover -z-10"
-      >
-        <source src="/space-bg.mp4" type="video/mp4" />
-      </video>
-      <div className="fixed inset-0 bg-black bg-opacity-40 z-0"></div>
+    <div className="min-h-screen relative overflow-hidden bg-gray-950">
+      {!user && (
+        <>
+          <div className="fixed top-0 left-0 w-full h-full -z-10">
+            <Antigravity
+              count={300}
+              magnetRadius={6}
+              ringRadius={7}
+              waveSpeed={0.4}
+              waveAmplitude={1}
+              particleSize={1.5}
+              lerpSpeed={0.05}
+              color={"#FF9FFC"}
+              autoAnimate={true}
+              particleVariance={1}
+            />
+          </div>
+          <div className="fixed inset-0 bg-black bg-opacity-40 z-0"></div>
+        </>
+      )}
       <div className="relative z-10">
         {!user ? (
           <Routes>
@@ -40,7 +39,7 @@ export default function App() {
           </Routes>
         ) : (
           <Routes>
-            <Route path="/" element={<CalendarView />} />
+            <Route path="/" element={<DashboardLayout />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         )}

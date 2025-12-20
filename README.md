@@ -28,6 +28,7 @@ npm run dev
 ```
 
 Demo credentials (from seed):
+
 - Email: `demo@example.com`
 - Password: `password123`
 

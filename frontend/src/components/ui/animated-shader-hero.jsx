@@ -1,5 +1,6 @@
 import React, { useRef, useEffect } from "react";
-import LightPillar from "./LightPillar";import RotatingText from './RotatingText';
+import LightPillar from "./LightPillar";
+import RotatingText from "./RotatingText";
 // Reusable Shader Background Hook
 const useShaderBackground = () => {
   const canvasRef = useRef(null);
@@ -432,7 +433,7 @@ const Hero = ({ trustBadge, headline, subtitle, buttons, className = "" }) => {
               </span>
               <span className="relative inline-block">
                 <RotatingText
-                  texts={['Ease', 'Style', 'Grace', 'Flow', 'Joy']}
+                  texts={["Ease", "Style", "Grace", "Flow", "Joy"]}
                   mainClassName="text-5xl md:text-7xl lg:text-8xl font-bold"
                   staggerFrom="last"
                   initial={{ y: "100%" }}

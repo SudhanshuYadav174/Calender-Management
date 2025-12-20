@@ -292,6 +292,7 @@ export const SignInFlow = ({ className, isSignup = false }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+  const [otp, setOtp] = useState("");
   const [step, setStep] = useState("email");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -308,21 +309,57 @@ export const SignInFlow = ({ className, isSignup = false }) => {
 
     try {
       if (isSignup) {
-        await API.post("/auth/register", { name, email, password });
-        // Show success animation
-        setReverseCanvasVisible(true);
-        setTimeout(() => setInitialCanvasVisible(false), 50);
-        setTimeout(() => setStep("success"), 2000);
+        const res = await API.post("/auth/signup", { name, email, password });
+        if (res.data.requiresVerification) {
+          setStep("otp");
+        }
       } else {
         const res = await API.post("/auth/login", { email, password });
-        login(res.data.token, res.data.user);
-        // Show success animation
-        setReverseCanvasVisible(true);
-        setTimeout(() => setInitialCanvasVisible(false), 50);
-        setTimeout(() => navigate("/"), 2000);
+        if (res.data.requiresVerification) {
+          setStep("otp");
+        } else {
+          login(res.data.token, res.data.user);
+          // Show success animation
+          setReverseCanvasVisible(true);
+          setTimeout(() => setInitialCanvasVisible(false), 50);
+          setTimeout(() => navigate("/"), 2000);
+        }
       }
     } catch (err) {
       setError(err?.response?.data?.message || `${isSignup ? 'Signup' : 'Login'} failed`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyOTP = async (e) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+
+    try {
+      const res = await API.post("/auth/verify-otp", { email, otp });
+      login(res.data.token, res.data.user);
+      // Show success animation
+      setReverseCanvasVisible(true);
+      setTimeout(() => setInitialCanvasVisible(false), 50);
+      setTimeout(() => navigate("/"), 2000);
+    } catch (err) {
+      setError(err?.response?.data?.message || "Invalid OTP");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResendOTP = async () => {
+    setError("");
+    setLoading(true);
+
+    try {
+      await API.post("/auth/resend-otp", { email });
+      setError("New OTP sent to your email");
+    } catch (err) {
+      setError(err?.response?.data?.message || "Failed to resend OTP");
     } finally {
       setLoading(false);
     }
@@ -462,47 +499,68 @@ export const SignInFlow = ({ className, isSignup = false }) => {
                     )}
                   </div>
                 </motion.div>
-              ) : (
+              ) : step === "otp" ? (
                 <motion.div 
-                  key="success-step"
-                  initial={{ opacity: 0, y: 50 }}
+                  key="otp-step"
+                  initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, ease: "easeOut", delay: 0.3 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.4, ease: "easeOut" }}
                   className="space-y-6 text-center"
                 >
                   <div className="space-y-2">
                     <h1 className="text-4xl font-bold leading-tight tracking-tight text-white">
-                      Welcome!
+                      Verify Your Email
                     </h1>
                     <p className="text-lg text-white/70 font-light">
-                      Account created successfully
+                      We've sent a 6-digit code to {email}
                     </p>
                   </div>
                   
-                  <motion.div 
-                    initial={{ scale: 0.8, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    transition={{ duration: 0.5, delay: 0.5 }}
-                    className="py-10"
-                  >
-                    <div className="mx-auto w-16 h-16 rounded-full bg-gradient-to-br from-violet-500 to-indigo-500 flex items-center justify-center">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                      </svg>
-                    </div>
-                  </motion.div>
+                  <form onSubmit={handleVerifyOTP} className="space-y-4">
+                    <input 
+                      type="text" 
+                      placeholder="Enter 6-digit OTP"
+                      value={otp}
+                      onChange={(e) => setOtp(e.target.value)}
+                      maxLength={6}
+                      className="w-full backdrop-blur-[1px] bg-white/5 text-white border border-white/10 rounded-full py-3 px-6 focus:outline-none focus:border-white/30 text-center placeholder:text-white/40 text-2xl tracking-widest"
+                      required
+                    />
+                    
+                    {error && (
+                      <motion.p 
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className={error.includes("sent") ? "text-green-400 text-sm" : "text-red-400 text-sm"}
+                      >
+                        {error}
+                      </motion.p>
+                    )}
+                    
+                    <motion.button 
+                      type="submit"
+                      disabled={loading}
+                      className="w-full rounded-full bg-gradient-to-r from-violet-500 to-indigo-500 text-white font-semibold py-3 px-6 hover:from-violet-600 hover:to-indigo-600 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                      whileHover={{ scale: loading ? 1 : 1.02 }}
+                      whileTap={{ scale: loading ? 1 : 0.98 }}
+                    >
+                      {loading ? "Verifying..." : "Verify OTP"}
+                    </motion.button>
+                  </form>
                   
-                  <motion.button 
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 1 }}
-                    onClick={() => navigate("/login")}
-                    className="w-full rounded-full bg-gradient-to-r from-violet-500 to-indigo-500 text-white font-semibold py-3 hover:from-violet-600 hover:to-indigo-600 transition-all"
-                  >
-                    Continue to Sign In
-                  </motion.button>
+                  <div className="text-sm text-white/50">
+                    Didn't receive the code?{" "}
+                    <button
+                      onClick={handleResendOTP}
+                      disabled={loading}
+                      className="text-violet-400 hover:text-violet-300 underline disabled:opacity-50"
+                    >
+                      Resend OTP
+                    </button>
+                  </div>
                 </motion.div>
-              )}
+              ) : null}
             </AnimatePresence>
           </div>
         </div>

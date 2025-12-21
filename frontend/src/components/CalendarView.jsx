@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { Calendar, dateFnsLocalizer } from "react-big-calendar";
 import { parse, startOfWeek, getDay, format } from "date-fns";
 import enUS from "date-fns/locale/en-US";
@@ -66,7 +67,7 @@ export default function CalendarView() {
   };
 
   return (
-    <div className="h-full w-full relative">
+    <div className="h-screen w-full relative overflow-hidden">
       {/* Aurora Background */}
       <div className="absolute inset-0 z-0 opacity-60">
         <Aurora
@@ -192,25 +193,26 @@ export default function CalendarView() {
         }
       `}</style>
 
-      <div className="relative z-10 h-full w-full flex flex-col p-4">
+      <div className="relative z-10 h-full w-full flex flex-col p-3 md:p-6">
         <Calendar
           localizer={localizer}
           events={events}
           startAccessor="start"
           endAccessor="end"
-          style={{ height: "100%", minHeight: "500px" }}
+          style={{ height: "calc(100vh - 3rem)" }}
           selectable
           onSelectSlot={handleSelectSlot}
           onSelectEvent={handleSelectEvent}
         />
       </div>
 
-      {showForm && (
+      {showForm && createPortal(
         <EventForm
           event={selectedEvent}
           onClose={handleClose}
           onSave={handleSave}
-        />
+        />,
+        document.body
       )}
     </div>
   );

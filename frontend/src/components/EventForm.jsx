@@ -63,83 +63,124 @@ export default function EventForm({ event, onClose, onSave }) {
   }
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-70 z-50 p-4">
-      <div className="bg-gray-900 bg-opacity-90 backdrop-blur-xl p-6 rounded-3xl shadow-2xl w-full max-w-md border border-gray-700">
-        <h3 className="text-xl font-bold mb-4 text-white">
-          {event && event._id ? "Edit Event" : "Create Event"}
-        </h3>
-        <form onSubmit={submit}>
-          <label className="block text-gray-300 mb-1">Title</label>
-          <input
-            className="w-full p-2 bg-gray-700 text-white border border-gray-600 rounded mb-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            required
-          />
-          <label className="block text-gray-300 mb-1">Date</label>
-          <input
-            type="date"
-            className="w-full p-2 bg-gray-700 text-white border border-gray-600 rounded mb-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            required
-          />
-          <div className="flex gap-2">
-            <div className="flex-1">
-              <label className="block text-gray-300 mb-1">Start</label>
+    <div className="fixed inset-0 flex items-center justify-center bg-black/80 backdrop-blur-sm z-[100] p-3 sm:p-6 overflow-y-auto">
+      <div className="bg-gradient-to-br from-gray-900 to-gray-800 p-5 sm:p-7 rounded-2xl shadow-2xl w-full max-w-lg border border-purple-500/20 my-auto">
+        <div className="flex items-center justify-between mb-5">
+          <h3 className="text-2xl font-bold text-white bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+            {event && event._id ? "Edit Event" : "Create Event"}
+          </h3>
+          <button
+            type="button"
+            onClick={onClose}
+            className="text-gray-400 hover:text-white transition-colors p-1"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        
+        <form onSubmit={submit} className="space-y-4">
+          {/* Title Field */}
+          <div>
+            <label className="block text-gray-300 mb-2 text-sm font-medium">Title</label>
+            <input
+              className="w-full px-3 py-2.5 bg-gray-800/50 text-white border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Enter event title"
+              required
+            />
+          </div>
+
+          {/* Date Field */}
+          <div>
+            <label className="block text-gray-300 mb-2 text-sm font-medium">Date</label>
+            <input
+              type="date"
+              className="w-full px-3 py-2.5 bg-gray-800/50 text-white border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              required
+            />
+          </div>
+
+          {/* Time Fields */}
+          {/* Time Fields */}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-gray-300 mb-2 text-sm font-medium">Start Time</label>
               <input
                 type="time"
-                className="w-full p-2 bg-gray-700 text-white border border-gray-600 rounded mb-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="w-full px-3 py-2.5 bg-gray-800/50 text-white border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
                 value={startTime}
                 onChange={(e) => setStartTime(e.target.value)}
                 required
               />
             </div>
-            <div className="flex-1">
-              <label className="block text-gray-300 mb-1">End</label>
+            <div>
+              <label className="block text-gray-300 mb-2 text-sm font-medium">End Time</label>
               <input
                 type="time"
-                className="w-full p-2 bg-gray-700 text-white border border-gray-600 rounded mb-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="w-full px-3 py-2.5 bg-gray-800/50 text-white border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
                 value={endTime}
                 onChange={(e) => setEndTime(e.target.value)}
                 required
               />
             </div>
           </div>
-          <label className="block text-gray-300 mb-1">Description</label>
-          <textarea
-            className="w-full p-2 bg-gray-700 text-white border border-gray-600 rounded mb-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            rows="3"
-          />
-          <label className="block text-gray-300 mb-1">Location</label>
-          <input
-            className="w-full p-2 bg-gray-700 text-white border border-gray-600 rounded mb-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
-            value={location}
-            onChange={(e) => setLocation(e.target.value)}
-          />
-          <label className="block text-gray-300 mb-1">
-            Reminder (minutes before)
-          </label>
-          <input
-            type="number"
-            className="w-full p-2 bg-gray-700 text-white border border-gray-600 rounded mb-4 focus:outline-none focus:ring-2 focus:ring-purple-500"
-            value={reminder}
-            onChange={(e) => setReminder(e.target.value)}
-          />
-          <div className="flex justify-between items-center">
-            <div className="space-x-2">
+
+          {/* Description Field */}
+          <div>
+            <label className="block text-gray-300 mb-2 text-sm font-medium">Description</label>
+            <textarea
+              className="w-full px-3 py-2.5 bg-gray-800/50 text-white border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all resize-none"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Add event description (optional)"
+              rows="3"
+            />
+          </div>
+
+          {/* Location Field */}
+          <div>
+            <label className="block text-gray-300 mb-2 text-sm font-medium">Location</label>
+            <input
+              className="w-full px-3 py-2.5 bg-gray-800/50 text-white border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              placeholder="Event location (optional)"
+            />
+          </div>
+
+          {/* Reminder Field */}
+          <div>
+            <label className="block text-gray-300 mb-2 text-sm font-medium">
+              Reminder (minutes before)
+            </label>
+            <input
+              type="number"
+              className="w-full px-3 py-2.5 bg-gray-800/50 text-white border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+              value={reminder}
+              onChange={(e) => setReminder(e.target.value)}
+              min="0"
+              placeholder="10"
+            />
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex items-center justify-between pt-4 border-t border-gray-700">
+            <div className="flex gap-3">
               <button
                 type="submit"
-                className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded transition"
+                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-6 py-2.5 rounded-lg transition-all font-medium shadow-lg shadow-purple-500/30"
               >
-                Save
+                Save Event
               </button>
               <button
                 type="button"
                 onClick={onClose}
-                className="bg-gray-600 hover:bg-gray-500 text-white px-4 py-2 rounded transition"
+                className="bg-gray-700 hover:bg-gray-600 text-white px-6 py-2.5 rounded-lg transition-all font-medium"
               >
                 Cancel
               </button>
@@ -148,8 +189,11 @@ export default function EventForm({ event, onClose, onSave }) {
               <button
                 type="button"
                 onClick={remove}
-                className="text-red-500 hover:text-red-400 font-semibold"
+                className="text-red-400 hover:text-red-300 font-semibold transition-colors flex items-center gap-1"
               >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
                 Delete
               </button>
             )}
@@ -159,10 +203,10 @@ export default function EventForm({ event, onClose, onSave }) {
 
       {/* Custom Alert Modal */}
       {showAlert && (
-        <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-3xl z-10">
-          <div className="bg-gray-800 bg-opacity-95 backdrop-blur-xl p-6 rounded-2xl shadow-2xl max-w-sm border border-red-500/30">
+        <div className="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm z-[60] p-4">
+          <div className="bg-gradient-to-br from-gray-900 to-gray-800 p-6 rounded-2xl shadow-2xl max-w-sm w-full border border-red-500/30 animate-in fade-in zoom-in duration-200">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-red-500 to-pink-600 flex items-center justify-center">
+              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-red-500 to-pink-600 flex items-center justify-center shadow-lg">
                 <svg
                   className="w-6 h-6 text-white"
                   fill="none"
@@ -177,12 +221,12 @@ export default function EventForm({ event, onClose, onSave }) {
                   />
                 </svg>
               </div>
-              <h4 className="text-white font-bold text-lg">Error</h4>
+              <h4 className="text-white font-bold text-xl">Error</h4>
             </div>
-            <p className="text-gray-300 mb-6">{alertMessage}</p>
+            <p className="text-gray-300 mb-6 leading-relaxed">{alertMessage}</p>
             <button
               onClick={() => setShowAlert(false)}
-              className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-4 py-2 rounded-lg transition font-semibold"
+              className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-4 py-3 rounded-lg transition-all font-semibold shadow-lg shadow-purple-500/30"
             >
               OK
             </button>
@@ -192,10 +236,10 @@ export default function EventForm({ event, onClose, onSave }) {
 
       {/* Custom Confirm Modal */}
       {showConfirm && (
-        <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-3xl z-10">
-          <div className="bg-gray-800 bg-opacity-95 backdrop-blur-xl p-6 rounded-2xl shadow-2xl max-w-sm border border-purple-500/30">
+        <div className="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm z-[60] p-4">
+          <div className="bg-gradient-to-br from-gray-900 to-gray-800 p-6 rounded-2xl shadow-2xl max-w-sm w-full border border-purple-500/30 animate-in fade-in zoom-in duration-200">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-red-500 to-pink-600 flex items-center justify-center shadow-lg">
                 <svg
                   className="w-6 h-6 text-white"
                   fill="none"
@@ -210,22 +254,21 @@ export default function EventForm({ event, onClose, onSave }) {
                   />
                 </svg>
               </div>
-              <h4 className="text-white font-bold text-lg">Delete Event</h4>
+              <h4 className="text-white font-bold text-xl">Delete Event</h4>
             </div>
-            <p className="text-gray-300 mb-6">
-              Are you sure you want to delete this event? This action cannot be
-              undone.
+            <p className="text-gray-300 mb-6 leading-relaxed">
+              Are you sure you want to delete this event? This action cannot be undone.
             </p>
             <div className="flex gap-3">
               <button
                 onClick={() => setShowConfirm(false)}
-                className="flex-1 bg-gray-600 hover:bg-gray-500 text-white px-4 py-2 rounded-lg transition font-semibold"
+                className="flex-1 bg-gray-700 hover:bg-gray-600 text-white px-4 py-3 rounded-lg transition-all font-semibold"
               >
                 Cancel
               </button>
               <button
                 onClick={confirmDelete}
-                className="flex-1 bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 text-white px-4 py-2 rounded-lg transition font-semibold"
+                className="flex-1 bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 text-white px-4 py-3 rounded-lg transition-all font-semibold shadow-lg shadow-red-500/30"
               >
                 Delete
               </button>

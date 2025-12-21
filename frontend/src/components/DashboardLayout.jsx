@@ -370,7 +370,7 @@ function DashboardContent() {
               )}
 
               {activeView === "calendar" && (
-                <div className="h-full w-full">
+                <div className="fixed inset-0 md:inset-auto md:absolute md:top-0 md:left-0 md:right-0 md:bottom-0 w-full h-full pt-14 md:pt-0">
                   <CalendarView />
                 </div>
               )}

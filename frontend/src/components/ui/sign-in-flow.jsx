@@ -26,7 +26,7 @@ const CanvasRevealEffect = ({
             opacities ?? [0.3, 0.3, 0.3, 0.5, 0.5, 0.5, 0.8, 0.8, 0.8, 1]
           }
           shader={`
-            ${reverse ? 'u_reverse_active' : 'false'}_;
+            ${reverse ? "u_reverse_active" : "false"}_;
             animation_speed_factor_${animationSpeed.toFixed(1)}_;
           `}
           center={["x", "y"]}
@@ -298,7 +298,8 @@ export const SignInFlow = ({ className, isSignup = false }) => {
   const [error, setError] = useState("");
   const [initialCanvasVisible, setInitialCanvasVisible] = useState(true);
   const [reverseCanvasVisible, setReverseCanvasVisible] = useState(false);
-  
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+
   const navigate = useNavigate();
   const { login } = useAuth();
 
@@ -326,7 +327,10 @@ export const SignInFlow = ({ className, isSignup = false }) => {
         }
       }
     } catch (err) {
-      setError(err?.response?.data?.message || `${isSignup ? 'Signup' : 'Login'} failed`);
+      setError(
+        err?.response?.data?.message ||
+          `${isSignup ? "Signup" : "Login"} failed`
+      );
     } finally {
       setLoading(false);
     }
@@ -365,8 +369,28 @@ export const SignInFlow = ({ className, isSignup = false }) => {
     }
   };
 
+  const handleForgotPassword = async (e) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+
+    try {
+      await API.post("/auth/forgot-password", { email });
+      setStep("forgotPasswordSent");
+    } catch (err) {
+      setError(err?.response?.data?.message || "Failed to send reset code");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <div className={cn("flex w-full flex-col min-h-screen bg-black relative", className)}>
+    <div
+      className={cn(
+        "flex w-full flex-col min-h-screen bg-black relative",
+        className
+      )}
+    >
       <div className="absolute inset-0 z-0">
         {initialCanvasVisible && (
           <div className="absolute inset-0">
@@ -382,7 +406,7 @@ export const SignInFlow = ({ className, isSignup = false }) => {
             />
           </div>
         )}
-        
+
         {reverseCanvasVisible && (
           <div className="absolute inset-0">
             <CanvasRevealEffect
@@ -397,17 +421,17 @@ export const SignInFlow = ({ className, isSignup = false }) => {
             />
           </div>
         )}
-        
+
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(0,0,0,1)_0%,_transparent_100%)]" />
         <div className="absolute top-0 left-0 right-0 h-1/3 bg-gradient-to-b from-black to-transparent" />
       </div>
-      
+
       <div className="relative z-10 flex flex-col flex-1">
         <div className="flex flex-1 flex-col justify-center items-center p-4">
           <div className="w-full max-w-sm">
             <AnimatePresence mode="wait">
               {step === "email" ? (
-                <motion.div 
+                <motion.div
                   key="email-step"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -420,14 +444,16 @@ export const SignInFlow = ({ className, isSignup = false }) => {
                       {isSignup ? "Create Your Account" : "Welcome Back"}
                     </h1>
                     <p className="text-lg text-white/70 font-light">
-                      {isSignup ? "Start organizing your events" : "Manage your calendar"}
+                      {isSignup
+                        ? "Start organizing your events"
+                        : "Manage your calendar"}
                     </p>
                   </div>
-                  
+
                   <form onSubmit={handleSubmit} className="space-y-4">
                     {isSignup && (
-                      <input 
-                        type="text" 
+                      <input
+                        type="text"
                         placeholder="Your Name"
                         value={name}
                         onChange={(e) => setName(e.target.value)}
@@ -435,27 +461,27 @@ export const SignInFlow = ({ className, isSignup = false }) => {
                         required
                       />
                     )}
-                    
-                    <input 
-                      type="email" 
+
+                    <input
+                      type="email"
                       placeholder="Email Address"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       className="w-full backdrop-blur-[1px] bg-white/5 text-white border border-white/10 rounded-full py-3 px-6 focus:outline-none focus:border-white/30 text-center placeholder:text-white/40"
                       required
                     />
-                    
-                    <input 
-                      type="password" 
+
+                    <input
+                      type="password"
                       placeholder="Password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       className="w-full backdrop-blur-[1px] bg-white/5 text-white border border-white/10 rounded-full py-3 px-6 focus:outline-none focus:border-white/30 text-center placeholder:text-white/40"
                       required
                     />
-                    
+
                     {error && (
-                      <motion.p 
+                      <motion.p
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
                         className="text-red-400 text-sm"
@@ -463,18 +489,33 @@ export const SignInFlow = ({ className, isSignup = false }) => {
                         {error}
                       </motion.p>
                     )}
-                    
-                    <motion.button 
+
+                    <motion.button
                       type="submit"
                       disabled={loading}
                       className="w-full rounded-full bg-gradient-to-r from-violet-500 to-indigo-500 text-white font-semibold py-3 px-6 hover:from-violet-600 hover:to-indigo-600 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                       whileHover={{ scale: loading ? 1 : 1.02 }}
                       whileTap={{ scale: loading ? 1 : 0.98 }}
                     >
-                      {loading ? "Loading..." : isSignup ? "Create Account" : "Sign In"}
+                      {loading
+                        ? "Loading..."
+                        : isSignup
+                        ? "Create Account"
+                        : "Sign In"}
                     </motion.button>
                   </form>
-                  
+
+                  {!isSignup && (
+                    <div className="text-sm text-white/50">
+                      <button
+                        onClick={() => setShowForgotPassword(true)}
+                        className="text-violet-400 hover:text-violet-300 underline"
+                      >
+                        Forgot password?
+                      </button>
+                    </div>
+                  )}
+
                   <div className="text-sm text-white/50">
                     {isSignup ? (
                       <>
@@ -500,7 +541,7 @@ export const SignInFlow = ({ className, isSignup = false }) => {
                   </div>
                 </motion.div>
               ) : step === "otp" ? (
-                <motion.div 
+                <motion.div
                   key="otp-step"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -516,10 +557,10 @@ export const SignInFlow = ({ className, isSignup = false }) => {
                       We've sent a 6-digit code to {email}
                     </p>
                   </div>
-                  
+
                   <form onSubmit={handleVerifyOTP} className="space-y-4">
-                    <input 
-                      type="text" 
+                    <input
+                      type="text"
                       placeholder="Enter 6-digit OTP"
                       value={otp}
                       onChange={(e) => setOtp(e.target.value)}
@@ -527,18 +568,22 @@ export const SignInFlow = ({ className, isSignup = false }) => {
                       className="w-full backdrop-blur-[1px] bg-white/5 text-white border border-white/10 rounded-full py-3 px-6 focus:outline-none focus:border-white/30 text-center placeholder:text-white/40 text-2xl tracking-widest"
                       required
                     />
-                    
+
                     {error && (
-                      <motion.p 
+                      <motion.p
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className={error.includes("sent") ? "text-green-400 text-sm" : "text-red-400 text-sm"}
+                        className={
+                          error.includes("sent")
+                            ? "text-green-400 text-sm"
+                            : "text-red-400 text-sm"
+                        }
                       >
                         {error}
                       </motion.p>
                     )}
-                    
-                    <motion.button 
+
+                    <motion.button
                       type="submit"
                       disabled={loading}
                       className="w-full rounded-full bg-gradient-to-r from-violet-500 to-indigo-500 text-white font-semibold py-3 px-6 hover:from-violet-600 hover:to-indigo-600 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -548,7 +593,7 @@ export const SignInFlow = ({ className, isSignup = false }) => {
                       {loading ? "Verifying..." : "Verify OTP"}
                     </motion.button>
                   </form>
-                  
+
                   <div className="text-sm text-white/50">
                     Didn't receive the code?{" "}
                     <button
@@ -565,6 +610,114 @@ export const SignInFlow = ({ className, isSignup = false }) => {
           </div>
         </div>
       </div>
+
+      {/* Forgot Password Modal */}
+      <AnimatePresence>
+        {showForgotPassword && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+            onClick={() => setShowForgotPassword(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="w-full max-w-md bg-black/40 backdrop-blur-xl border border-white/10 rounded-2xl p-8 space-y-6"
+            >
+              {step === "forgotPasswordSent" ? (
+                <>
+                  <div className="space-y-2 text-center">
+                    <h2 className="text-2xl font-bold text-white">
+                      Check Your Email
+                    </h2>
+                    <p className="text-white/70">
+                      We've sent a password reset code to {email}
+                    </p>
+                  </div>
+                  <motion.button
+                    onClick={() => {
+                      setShowForgotPassword(false);
+                      navigate(
+                        `/reset-password?email=${encodeURIComponent(email)}`
+                      );
+                    }}
+                    className="w-full rounded-full bg-gradient-to-r from-violet-500 to-indigo-500 text-white font-semibold py-3 px-6 hover:from-violet-600 hover:to-indigo-600 transition-all duration-200"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    Go to Reset Password
+                  </motion.button>
+                  <button
+                    onClick={() => {
+                      setShowForgotPassword(false);
+                      setStep("email");
+                    }}
+                    className="w-full text-white/50 hover:text-white/70 text-sm"
+                  >
+                    Back to Login
+                  </button>
+                </>
+              ) : (
+                <>
+                  <div className="space-y-2 text-center">
+                    <h2 className="text-2xl font-bold text-white">
+                      Forgot Password?
+                    </h2>
+                    <p className="text-white/70">
+                      Enter your email and we'll send you a reset code
+                    </p>
+                  </div>
+
+                  <form onSubmit={handleForgotPassword} className="space-y-4">
+                    <input
+                      type="email"
+                      placeholder="Email Address"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="w-full backdrop-blur-[1px] bg-white/5 text-white border border-white/10 rounded-full py-3 px-6 focus:outline-none focus:border-white/30 text-center placeholder:text-white/40"
+                      required
+                    />
+
+                    {error && (
+                      <motion.p
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="text-red-400 text-sm text-center"
+                      >
+                        {error}
+                      </motion.p>
+                    )}
+
+                    <motion.button
+                      type="submit"
+                      disabled={loading}
+                      className="w-full rounded-full bg-gradient-to-r from-violet-500 to-indigo-500 text-white font-semibold py-3 px-6 hover:from-violet-600 hover:to-indigo-600 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                      whileHover={{ scale: loading ? 1 : 1.02 }}
+                      whileTap={{ scale: loading ? 1 : 0.98 }}
+                    >
+                      {loading ? "Sending..." : "Send Reset Code"}
+                    </motion.button>
+                  </form>
+
+                  <button
+                    onClick={() => {
+                      setShowForgotPassword(false);
+                      setError("");
+                    }}
+                    className="w-full text-white/50 hover:text-white/70 text-sm"
+                  >
+                    Back to Login
+                  </button>
+                </>
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

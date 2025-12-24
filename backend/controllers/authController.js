@@ -204,3 +204,125 @@ exports.me = async (req, res, next) => {
     next(err);
   }
 };
+
+exports.forgotPassword = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ message: "Email is required" });
+
+    const user = await User.findOne({ email });
+    if (!user) return res.status(400).json({ message: "User not found" });
+
+    // Generate reset token (6-digit OTP)
+    const resetToken = generateOTP();
+    const resetTokenExpiry = new Date(Date.now() + 30 * 60 * 1000); // 30 minutes
+
+    user.resetPasswordToken = resetToken;
+    user.resetPasswordExpiry = resetTokenExpiry;
+    await user.save();
+
+    // Create reset URL
+    const resetURL = `${
+      process.env.FRONTEND_URL || "http://localhost:5173"
+    }/reset-password?token=${resetToken}&email=${email}`;
+
+    // Send password reset email
+    const subject = "Reset Your Password - One Calendar";
+    const html = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #7c3aed;">Password Reset Request</h2>
+        <p>Hi ${user.name},</p>
+        <p>We received a request to reset your password. Use the code below to reset it:</p>
+        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; text-align: center; border-radius: 10px; margin: 20px 0;">
+          <h1 style="color: white; margin: 0; font-size: 36px; letter-spacing: 8px;">${resetToken}</h1>
+        </div>
+        <p>Or click the link below:</p>
+        <p style="text-align: center;">
+          <a href="${resetURL}" style="display: inline-block; padding: 12px 24px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">Reset Password</a>
+        </p>
+        <p>This code is valid for 30 minutes.</p>
+        <p>If you didn't request a password reset, please ignore this email.</p>
+        <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+        <p style="color: #666; font-size: 12px;">One Calendar - Your Digital Event Manager</p>
+      </div>
+    `;
+
+    await sendMail(
+      email,
+      subject,
+      `Your password reset code is: ${resetToken}`,
+      html
+    );
+
+    res.json({ message: "Password reset code sent to your email" });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.resetPassword = async (req, res, next) => {
+  try {
+    const { email, token, newPassword } = req.body;
+
+    if (!email || !token || !newPassword)
+      return res.status(400).json({ message: "Missing required fields" });
+
+    const user = await User.findOne({ email });
+    if (!user) return res.status(400).json({ message: "User not found" });
+
+    if (!user.resetPasswordToken || !user.resetPasswordExpiry)
+      return res
+        .status(400)
+        .json({
+          message:
+            "No reset request found. Please request a new password reset.",
+        });
+
+    if (new Date() > user.resetPasswordExpiry)
+      return res
+        .status(400)
+        .json({
+          message: "Reset token expired. Please request a new password reset.",
+        });
+
+    if (user.resetPasswordToken !== token)
+      return res.status(400).json({ message: "Invalid reset token" });
+
+    // Hash new password
+    const salt = await bcrypt.genSalt(10);
+    const hashed = await bcrypt.hash(newPassword, salt);
+
+    // Update password and clear reset token
+    user.password = hashed;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpiry = undefined;
+    await user.save();
+
+    // Send confirmation email
+    const subject = "Password Changed Successfully - One Calendar";
+    const html = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #7c3aed;">Password Changed</h2>
+        <p>Hi ${user.name},</p>
+        <p>Your password has been successfully changed.</p>
+        <p>If you didn't make this change, please contact support immediately.</p>
+        <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+        <p style="color: #666; font-size: 12px;">One Calendar - Your Digital Event Manager</p>
+      </div>
+    `;
+
+    await sendMail(
+      email,
+      subject,
+      "Your password has been changed successfully.",
+      html
+    );
+
+    res.json({
+      message:
+        "Password reset successfully. You can now login with your new password.",
+    });
+  } catch (err) {
+    next(err);
+  }
+};
